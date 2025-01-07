@@ -102,7 +102,7 @@ class PanierState extends State<AjoutPanier> {
                 ElementBlock(elements:[
                   TextPesro("Prix",Colors.black),
                         TextPesro(
-                            tampoProduit[indexParcour].prix.toString() + " fc"
+                             " fc"
                               ,
                             Colors.black)])
                     .afficheElement(),
@@ -111,16 +111,7 @@ class PanierState extends State<AjoutPanier> {
                 ElementBlock(elements:[
                   TextPesro("Reste",Colors.black),
                         TextPesro(
-                            (tampoProduit.length != 0)
-                                ? tampoProduit[indexParcour]
-                                        .quantite_detail
-                                        .toString() +
-                                    " pcs " +
-                                    tampoProduit[indexParcour]
-                                        .quantite_gros
-                                        .toString() +
-                                    " pqts"
-                                : "0" + "pcs",
+                           "0" + "pcs",
                             Colors.red)])
                     .afficheElement()
 
