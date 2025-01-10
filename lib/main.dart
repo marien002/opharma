@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:opharma/view/auth/pageAuthentificationClient.dart';
-import 'package:opharma/view/auth/pageAuthentificationPharma.dart';
 
-import 'package:opharma/view/pharmacie/pageEnregistrement.dart';
-import 'package:opharma/view/test.dart';
+import 'package:opharma/view/auth/pageAuthentificationPharma.dart';
 
 void main() {
 

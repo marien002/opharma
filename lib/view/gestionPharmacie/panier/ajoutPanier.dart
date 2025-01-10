@@ -27,8 +27,9 @@ class AjoutPanier extends StatefulWidget {
   AjoutPanier(this.tampoProduit);
   @override
   State<AjoutPanier> createState() => PanierState(this.tampoProduit);
-
 }
+
+
 class PanierState extends State<AjoutPanier> {
   bool switchValue = false;
   int posCombo=0;

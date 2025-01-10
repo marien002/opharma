@@ -1,5 +1,4 @@
 
-
 import '../../elper/navigation.dart';
 import '../../models/modelMedicament.dart';
 import '../../models/panier.dart';
@@ -53,11 +52,5 @@ creerPanier(){
   remettre(){
     cPanier().remettreElement();
   }
-
-
-
-
-
-
 
 }
