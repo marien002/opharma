@@ -178,8 +178,4 @@ class StockProduitState extends State<StockProduit> {
     );
   }
 
-
-
-
-
 }
