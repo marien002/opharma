@@ -8,18 +8,22 @@ class ModelPharmacie  {
   late   int ? id_pharmacie;
   String nom_pharmacie;
 
-  String mot_de_passe;
-  String login;
+  String adresse_physique;
+
+  String longitude;
+  String latutude;
 
   String nomTable="pharmacie";
   static BaseDeDonnee base=new  BaseDeDonnee();
 
-  ModelPharmacie(this.nom_pharmacie,this.mot_de_passe,this.login);
+  ModelPharmacie(this.nom_pharmacie,this.adresse_physique,this.longitude,this.latutude);
 
   ajouter() async{
     int id_phar=await ModelPharmacie.base.ajoutDonnees(this.nomTable,{"nom_pharmacie":this.nom_pharmacie,
-      "login":this.login,
-      "mot_passe":this.mot_de_passe
+      "adresse_physique":this.adresse_physique,
+      "longitude":this.latutude,
+      "latitude":this.longitude,
+
     });
     return  id_phar;
 

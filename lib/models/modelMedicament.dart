@@ -128,10 +128,11 @@ class ModelMedicament {
 
 
   static afficher()async {
-    String requette="select * from medicament inner join  medicamment_pharmacie on "+
-        " medicamment_pharmacie.id_medicament=medicament.id_medicament inner join pharmacie "+
-        " on pharmacie.id_pharmacie=medicamment_pharmacie.id_pharmacie "+
-        " where medicamment_pharmacie.id_pharmacie='$sess'";
+
+    String requette="select * from medicament inner join  medicament_pharmacie on "+
+        " medicament_pharmacie.id_medicament=medicament.id_medicament inner join pharmacie "+
+        " on pharmacie.id_pharmacie=medicament_pharmacie.id_pharmacie "+
+        " where medicament_pharmacie.id_pharmacie='$sess'";
     var res=await base.reccuperationDonnees(requette);
 
     return  preparationPourCombo(res);

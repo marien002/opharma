@@ -11,13 +11,13 @@ import '../leyouts/base.dart';
 
 class pageEnregistrement extends StatefulWidget {
   static String nom_pharmacie="";
-  static String telephone="";
-  static String ville="";
-  static String commune="";
-  static String adresseSup="";
+  static String adresse_physique="";
   static String mot_de_passe="";
-  static String mot_de_passeConf="";
   static String login="";
+
+  static String longitude="";
+  static String latitude="";
+
   @override
   State<pageEnregistrement> createState() => pageEnregistrementState();
 }
@@ -26,14 +26,24 @@ class pageEnregistrementState extends State<pageEnregistrement> {
   Widget build(BuildContext context) {
     var h=MediaQuery.of(context).size;
     double largInp=h.width-18;
-    var longInp=40;
+    var longInp=50;
     var colorButton= Color.fromRGBO(50, 190, 166, 1);
     var colorInput=Color.fromRGBO(230, 230, 230,1);
+
+    ButtonCostom localisation= ButtonCostom("Localisation via la map",colorButton,(){
+
+    },rad: 9);
 
     InputCostom nomPharma=InputCostom(Name:"nomPharma",lar:longInp,long:largInp,
         value: "Nom du pharmacie",
         couleur:colorInput
     );
+    InputCostom adresse=InputCostom(Name:"Adresse_physique",lar:longInp,long:largInp,
+        value: "Adresse physique",
+        couleur:colorInput
+    );
+
+
     InputCostom login=InputCostom(Name:"login",lar:longInp,long:largInp,
         value: "login",
         couleur:colorInput
@@ -64,16 +74,24 @@ class pageEnregistrementState extends State<pageEnregistrement> {
                 "Créer un compte pharmacie ",
                 [
                   nomPharma.lancer(),
+                  adresse.lancer(),
                  login.lancer(),
-
                  motDePasse.lancer(),
-                  motDePasseConfirmation.lancer(),
-                  ButtonCostom("Créer le compte",colorButton,(){
+                  localisation.lancer(),
 
+                  ButtonCostom("Créer le compte",colorButton,(){
                     Controler_pharmacie(context).Enregistrer(
-                        nomPharma.ValueAf(),
-                       motDePasse.ValueAf(),motDePasseConfirmation.ValueAf(),login.ValueAf());
+                       nom_pharmacie:  nomPharma.ValueAf(),
+                        adresse_physique: adresse.ValueAf(),
+                        login: login.ValueAf(),
+                       mot_de_passe: motDePasse.ValueAf(),
+                        latitude: "22",
+                        longitude: "22",
+                );
                   },rad: 9).lancer()
+
+
+
                 ],
                 tailleT: 45
               )
