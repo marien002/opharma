@@ -53,7 +53,7 @@ class StockProduitState extends State<StockProduit> {
   Widget build(BuildContext context) {
 
     longElement=MediaQuery.of(context).size.width-190;
-    longElement1=80;
+    longElement1=85;
     longQte=MediaQuery.of(context).size.width-220;
     var h=MediaQuery.of(context).size;
     String _selectedDate = '';
