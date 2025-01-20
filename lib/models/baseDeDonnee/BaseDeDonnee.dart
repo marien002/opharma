@@ -15,7 +15,7 @@ class BaseDeDonnee {
 
   Future<Database> createDatabase () async {
     Directory directory=await getApplicationDocumentsDirectory();
-    final path=join(directory.path,"omegapharma31.db");
+    final path=join(directory.path,"omegapharmaBase.db");
     return await openDatabase(
       path,
       version:1,
@@ -139,6 +139,7 @@ class BaseDeDonnee {
           id_medicament INTEGER,
           id_pharmacie INTEGER,
           id_client INTEGER,
+          status INTEGER,
           quantite INTEGER,
           FOREIGN KEY (id_reservation) REFERENCES reservation (id_reservation),
           FOREIGN KEY (id_medicament) REFERENCES medicament (id_medicament),
