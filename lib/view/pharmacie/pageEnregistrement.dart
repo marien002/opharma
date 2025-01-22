@@ -7,7 +7,7 @@ import '../componentGenerale/Combobox.dart';
 import '../componentGenerale/InputCostom.dart';
 import '../componentGenerale/entete.dart';
 import '../leyouts/base.dart';
-
+import 'package:geolocator/geolocator.dart';
 
 class pageEnregistrement extends StatefulWidget {
   static String nom_pharmacie="";
@@ -22,6 +22,7 @@ class pageEnregistrement extends StatefulWidget {
   State<pageEnregistrement> createState() => pageEnregistrementState();
 }
 class pageEnregistrementState extends State<pageEnregistrement> {
+  Position? _currentPosition;
   @override
   Widget build(BuildContext context) {
     var h=MediaQuery.of(context).size;
@@ -31,7 +32,7 @@ class pageEnregistrementState extends State<pageEnregistrement> {
     var colorInput=Color.fromRGBO(230, 230, 230,1);
 
     ButtonCostom localisation= ButtonCostom("Localisation via la map",colorButton,(){
-
+    _getCurrentPosition();
     },rad: 9);
 
     InputCostom nomPharma=InputCostom(Name:"nomPharma",lar:longInp,long:largInp,
@@ -45,11 +46,11 @@ class pageEnregistrementState extends State<pageEnregistrement> {
 
 
     InputCostom login=InputCostom(Name:"login",lar:longInp,long:largInp,
-        value: "login",
+        value: "Téléphone ou Email",
         couleur:colorInput
     );
     InputCostom motDePasse=InputCostom(Name:"motDePasse",lar:longInp,long:largInp,
-        value: "motDepasse",
+        value: "Mot de passe",
         couleur:colorInput
     );
     InputCostom motDePasseConfirmation=InputCostom(Name:"motDePasseConfirmation",lar:longInp,long:largInp,
@@ -67,26 +68,27 @@ class pageEnregistrementState extends State<pageEnregistrement> {
             logo: null
         ).Demarrer(),
 
-        body:Base(
+       body:Base(
           content: Column(
             children: [
               blockEnregistrement(
                 "Créer un compte pharmacie ",
                 [
                   nomPharma.lancer(),
-                  adresse.lancer(),
                  login.lancer(),
+                  adresse.lancer(),
                  motDePasse.lancer(),
-                  localisation.lancer(),
+
 
                   ButtonCostom("Créer le compte",colorButton,(){
+                    _getCurrentPosition();
                     Controler_pharmacie(context).Enregistrer(
                        nom_pharmacie:  nomPharma.ValueAf(),
                         adresse_physique: adresse.ValueAf(),
                         login: login.ValueAf(),
                        mot_de_passe: motDePasse.ValueAf(),
-                        latitude: "22",
-                        longitude: "22",
+                        latitude: "${_currentPosition?.latitude}",
+                        longitude: "${_currentPosition?.longitude}",
                 );
                   },rad: 9).lancer()
 
@@ -101,6 +103,39 @@ class pageEnregistrementState extends State<pageEnregistrement> {
         ).lancer(h.height-270,h.width-25),
     );
 
+  }
+  // Méthode pour obtenir la position de l'utilisateur
+  Future<void> _getCurrentPosition() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // Vérifie si le service de localisation est activé
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return Future.error('Le service de localisation est désactivé.');
+    }
+
+    // Vérifie et demande les permissions de localisation
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return Future.error('La permission de localisation est refusée.');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error(
+          'La permission de localisation est refusée en permanence.');
+    }
+
+    // Obtient la position actuelle
+    final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+
+    setState(() {
+      _currentPosition = position;
+    });
   }
 
 }

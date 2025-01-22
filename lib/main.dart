@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: false,
         primarySwatch: Colors.blue,
       ),
-      home:LocalisationBanquePage(bloodBanks: [],),
+      home:pageEnregistrement(),
       //localisationPharmacie(start: LatLng(34.0522, -118.2437),end: LatLng(37.7749, -122.4194)),
     );
   }
