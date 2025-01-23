@@ -11,6 +11,7 @@ class InputCostom {
   double elevation;
   var type;
   var estcache = false;
+  Widget icon;
   var exp=RegExp(r'^[A-Za-z]+$');
   var isvalid=true;
   String Name="";
@@ -30,8 +31,10 @@ class InputCostom {
     this.estcache = false,
     this.couleurBorder = Colors.white24,
     this.elevation = 0,
-    this.valeurInterne=""
-  });
+    Widget? icon,
+    this.valeurInterne="",
+
+  }) : this.icon = icon ?? const Icon(Icons.verified_outlined);
 
   ValueAf(){
 
@@ -79,6 +82,7 @@ class InputCostom {
                   },
 
                   decoration: InputDecoration(
+                    suffixIcon: this.icon,
                     fillColor: Colors.blue,
                     errorText: isvalid?null:"error",
 
