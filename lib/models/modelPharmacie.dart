@@ -29,8 +29,8 @@ class ModelPharmacie {
     Map<String, dynamic> data = {
       "nom_pharmacie": this.nom_pharmacie,
       "adresse_physique": this.adresse_physique,
-      "longitude": this.longitude,
-      "latitude": this.latutude,
+      "longitude": double.parse(this.longitude.toString()),
+      "latitude": double.parse(this.latutude.toString()),
     };
 
     // Envoie les données à l'API

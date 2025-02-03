@@ -202,53 +202,65 @@ class pageEnregistrementState extends State<pageEnregistrement> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Checkbox(value: etat, onChanged: (value) {
-          setState(() {
+        Checkbox(
+          value: etat,
+          onChanged: (value) {
+            setState(() {
+              etat = value ?? false;
+            });
 
-          });
-          etat = !etat;
-          _getCurrentPosition();
-        }, activeColor: Color.fromRGBO(50, 190, 166, 1),),
+            if (etat) {
+              _getCurrentPosition();
+            }
+          },
+          activeColor: const Color.fromRGBO(50, 190, 166, 1),
+        ),
         Expanded(
-          child: Text("J’ai lu et j’accepte les Termes et Conditions dont "
-              "les  conditions générales d’utilisation et la Politique de Confidentialité",
-            maxLines: 3, ),
+          child: Text(
+            "J’ai lu et j’accepte les Termes et Conditions dont "
+                "les conditions générales d’utilisation et la Politique de Confidentialité",
+            maxLines: 3,
+          ),
         )
-      ],);
+      ],
+    );
   }
 
-  // Méthode pour obtenir la position de l'utilisateur
+  // Méthode pour obtenir la position actuelle
   Future<void> _getCurrentPosition() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    // Vérifie si le service de localisation est activé
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return Future.error('Le service de localisation est désactivé.');
-    }
-
-    // Vérifie et demande les permissions de localisation
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        return Future.error('La permission de localisation est refusée.');
+    try {
+      // Vérifie si le service de localisation est activé
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        throw Exception('Le service de localisation est désactivé.');
       }
+
+      // Vérifie et demande les permissions de localisation
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          throw Exception('La permission de localisation est refusée.');
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        throw Exception(
+            'La permission de localisation est refusée en permanence.');
+      }
+
+      // Obtient la position actuelle
+      final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      setState(() {
+        _currentPosition = position;
+      });
+    } catch (e) {
+      // Affiche une erreur si quelque chose échoue
+      print('Erreur: $e');
     }
-
-    if (permission == LocationPermission.deniedForever) {
-      return Future.error(
-          'La permission de localisation est refusée en permanence.');
-    }
-
-    // Obtient la position actuelle
-    final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
-
-    setState(() {
-      _currentPosition = position;
-    });
   }
 
 }

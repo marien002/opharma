@@ -56,8 +56,9 @@ class pageAuthentificationState extends State<pageAuthentificationPharma> {
     var colorInput=Color.fromRGBO(230, 230, 230,1);
 
     InputCostom login= InputCostom(Name:"login",lar:longInp,long:largInp,couleurBorder: colorConnect,
-        value: "Entrez le login ",
-        couleur:colorInput
+        value: "Téléphone ou Email",
+        couleur:colorInput,
+        icon: Icon(Icons.login)
     );
 
     InputCostom passWord=InputCostom(Name:"passWord",lar:longInp,long:largInp,couleurBorder: colorConnect,
