@@ -1,233 +1,389 @@
-import 'package:flutter/material.dart';
-import 'package:opharma/view/pharmacie/pageEnregistrement.dart';
-import 'package:colorful_circular_progress_indicator/colorful_circular_progress_indicator.dart';
-
-import '../../controlers/controler_client.dart';
-import '../../controlers/controler_pharmacie.dart';
-import '../../controlers/controllerAuth.dart';
-import 'package:opharma/elper/navigation.dart';
-import '../componentGenerale/ButtonCostom.dart';
-import '../componentGenerale/Combobox.dart';
-import '../componentGenerale/InputCostom.dart';
-import '../componentGenerale/dialogue.dart';
-import '../componentGenerale/entete.dart';
-import '../componentGenerale/messageFlache.dart';
-import '../leyouts/base.dart';
-import 'component/Element.dart';
-import 'component/blockAuth.dart';
-import 'component/blockInt.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'dart:async';
 import 'dart:convert';
-//import 'package:eboodbank_app/gestionStocks/business/model/banque/BanqueModele.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:opharma/view/auth/pageAuthentificationPharma.dart';
 import 'package:http/http.dart' as http;
+import 'dart:ui';
 
+import '../../const/alertForm.dart';
+import '../../const/drawer.dart';
+import '../../utils/Endpoint.dart';
+import 'localisationPhamacie.dart';
 
-class localisationPharmacie extends StatelessWidget {
-  final LatLng start;
-  final LatLng end;
+//import 'package:soos_alerts/const/drawer.dart';
 
-  localisationPharmacie({required this.start, required this.end});
-
-  double calculateDistance() {
-    return Geolocator.distanceBetween(
-      start.latitude,
-      start.longitude,
-      end.latitude,
-      end.longitude,
-    );
-  }
-
+class SignalementApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    double distance = calculateDistance();
-    return Container(
-      margin: EdgeInsets.all(50),
-      child: Positioned(
-        left: (start.longitude + end.longitude) / 2,
-        top: (start.latitude + end.latitude) / 2,
-        child: Container(
-          padding: EdgeInsets.all(4.0),
-          color: Colors.white,
-          child: Text(
-            'Distance: ${distance.toStringAsFixed(2)} m',
-            style: TextStyle(color: Colors.black),
-          ),
-        ),
-      ),
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: SignalementPage(),
     );
   }
 }
 
-class LocalisationBanquePage extends ConsumerStatefulWidget {
-  final List<BanqueModele> bloodBanks;
-
-  LocalisationBanquePage({required this.bloodBanks});
+class SignalementPage extends StatefulWidget {
 
   @override
-  ConsumerState<LocalisationBanquePage> createState() =>
-      _LocalisationBanquePageState();
+  _SignalementPageState createState() => _SignalementPageState();
 }
 
-class BanqueModele {
-
-}
-
-class _LocalisationBanquePageState
-    extends ConsumerState<LocalisationBanquePage> {
+class _SignalementPageState extends State<SignalementPage> {
+  LatLng? currentPosition;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final MapController _mapController = MapController();
+  final Completer<void> _mapReady = Completer<void>();
   List<Marker> markers = [];
   List<Polyline> polylines = [];
   List<Widget> distanceWidgets = [];
-  LatLng? currentPosition;
   final MapController mapController = MapController();
-
-  Future<LatLng?> _getCurrentLocation() async {
-    var status = await Permission.location.request();
-    if (status.isGranted) {
-      Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high);
-      return LatLng(position.latitude, position.longitude);
-    } else {
-      return null;
-    }
-  }
-
-  Future<List<LatLng>> getRoute(LatLng start, LatLng end) async {
-    final response = await http.get(
-      Uri.parse(
-          'http://router.project-osrm.org/route/v1/driving/${start.longitude},${start.latitude};${end.longitude},${end.latitude}?geometries=geojson'),
-    );
-
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      List<LatLng> route = [];
-      if (data['routes'].isNotEmpty) {
-        var coordinates = data['routes'][0]['geometry']['coordinates'];
-        for (var coord in coordinates) {
-          route.add(LatLng(coord[1], coord[0]));
-        }
-      }
-      return route;
-    } else {
-      throw Exception('Failed to load route');
-    }
-  }
+  Set<Marker> _markers = {};
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      var positionPhone = await _getCurrentLocation();
-      currentPosition = positionPhone;
+    WidgetsBinding.instance?.addPostFrameCallback((_) async {
 
-      markers.add(Marker(
-        point: positionPhone ?? const LatLng(-4.4419, 15.2663),
-        width: 40.0,
-        height: 40.0,
-        child: Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Color.fromRGBO(50, 190, 166, 1),
-            border: Border.all(color: Colors.white, width: 2),
-          ),
-          child: const Icon(Icons.person,
-              color: Colors.white, size: 23.0),
-        ),
-      ));
-/*
-      for (var bank in widget.bloodBanks) {
-        var bankPosition = LatLng(
-          double.tryParse(bank.latitude.toString()) ?? 0.0,
-          double.tryParse(bank.longitude.toString()) ?? 0.0,
-        );
+      _initLocationAndFetchPharmacies();
 
-        markers.add(Marker(
-          point: bankPosition,
-          width: 40.0,
-          height: 40.0,
-          child: Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.redAccent,
-              border: Border.all(color: Colors.white, width: 2),
-            ),
-            child: const Icon(Icons.bloodtype, color: Colors.white, size: 23.0),
-          ),
-        ));
 
-        if (currentPosition != null) {
-          List<LatLng> route = await getRoute(currentPosition!, bankPosition);
-          if (route.isNotEmpty) {
-            polylines.add(Polyline(
-              points: route,
-              strokeWidth: 4.0,
-              color: Colors.blue,
-            ));
+      // _determinePosition();
+    });
+  }
 
-            // Utilisez le widget de distance
-            distanceWidgets.add(
-                localisationPharmacie(start: currentPosition!, end: bankPosition));
-          }
-        }
-      }*/
+ getRoute() async {
+    Uri url = Uri.parse(Endpoint.baseUrlEnregisterpharmacie);
+
+    var response = await http.get(
+      url,
+      headers: {"Content-Type": "application/json",
+        "User-Agent": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
+      },
+
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      print ('dataaaaaaaaaaa: $data');
+      List<LatLng> route = [];
+      if (data['data'].isNotEmpty) {
+
+        // var coordinates = data['data'][0]['geometry']['coordinates'];
+        /*  for (var coord in coordinates) {
+          route.add(LatLng(coord[1], coord[0]));
+        }*/
+      }
+      return route;
+    } else {
+     print(response.statusCode);
+     print(response.body);
+    }
+  }
+
+  Future<void> _determinePosition() async {
+    // Vérifier les permissions
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied ||
+        permission == LocationPermission.deniedForever) {
+      permission = await Geolocator.requestPermission();
+    }
+
+    // Récupérer la position actuelle
+    if (permission == LocationPermission.whileInUse ||
+        permission == LocationPermission.always) {
+      Position position = await Geolocator.getCurrentPosition();
+
+      setState(() {
+        currentPosition = LatLng(position.latitude, position.longitude);
+      });
+
+      // if (!_mapReady.isCompleted) {
+      //   await _mapReady.future;
+      // }
 
       if (currentPosition != null) {
-        mapController.move(currentPosition!, 15.0);
-      }
+        print(" Ma position: ${position.latitude}, ${position.longitude}");
+        _mapController.move(currentPosition!, 13.0);
 
-      setState(() {});
-    });
+      }
+    }
+  }
+
+  Future<void> _initLocationAndFetchPharmacies() async {
+    await _determinePosition();
+    if (currentPosition != null) {
+      await _fetchPharmacies();
+    }
+    setState(() => _isLoading = false);
+  }
+  Future<void> _fetchPharmacies() async {
+    try {
+      Uri url = Uri.parse(Endpoint.baseUrlEnregisterpharmacie);
+
+      var response = await http.get(
+        url,
+        headers: {"Content-Type": "application/json",
+          "User-Agent": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
+        },
+
+      );
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        print(' position  ::::::::::: ${response.body}');
+        _addMarkers(data['data']);
+      } else {
+        print("Erreur API: ${response.statusCode} - ${response.body}");
+      }
+    } catch (e) {
+      print("Erreur lors de la récupération des pharmacies: $e");
+    }
+  }
+
+  void _addMarkers(List pharmacies) {
+
+    Set<Marker> newMarkers = pharmacies.map((pharmacy) {
+      return Marker(
+        width: 80,
+        height: 80,
+       point: LatLng(
+      pharmacy['latitude'] != null ? double.parse(pharmacy['latitude'].toString()) : 0.0,
+      pharmacy['longitude'] != null ? double.parse(pharmacy['longitude'].toString()) : 0.0,
+      ),
+
+
+      child: Icon(Icons.local_pharmacy_sharp, color: Colors.red, size: 40),
+      );
+    }).toSet();
+
+    setState(() => _markers = newMarkers);
+    print(newMarkers);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
+      backgroundColor: const Color(0xFF0D1136),
       body: Stack(
         children: [
+          // Affichage de la carte
+
           FlutterMap(
-            mapController: mapController,
+            mapController: _mapController,
             options: MapOptions(
-              initialCenter: currentPosition ?? const LatLng(-4.4419, 15.2663),
-              initialZoom: 28.0,
-              minZoom: 12.0,
-              maxZoom: 15.0,
+              initialCenter:
+              LatLng(2.3522219, 48.8566969), // Center the map over London
+              initialZoom: 9.2,
+              onMapReady: () {
+                // _mapReady.complete();
+                print('Map is ready');
+                _determinePosition();
+              },
             ),
             children: [
               TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                userAgentPackageName: 'dev.fleatet.flutter_map.example',
+                urlTemplate:
+                'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'dev.fleaflet.flutter_map.example',
               ),
-              MarkerLayer(markers: markers),
-              PolylineLayer(polylines: polylines),
+              MarkerLayer(
+                markers: [
+                  if(currentPosition != null)
+                    Marker(
+                      point: currentPosition!,
+                      width: 80,
+                      height: 80,
+                      child: Icon(Icons.person_pin, color: Colors.red, size: 40),
+                    ),
+                  ..._markers,
+                ],
+              ),
             ],
           ),
-          ...distanceWidgets, // Ajoutez les widgets de distance ici
+
+          if (currentPosition == null)
+            Center(
+              child: CircularProgressIndicator(
+                color: Colors.white,
+              ),
+            ),
+
+          // En-tête
+          Positioned(
+            top: 50,
+            left: 20,
+            right: 20,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(
+                  30), // Pour arrondir les coins du container
+              child: BackdropFilter(
+                filter: ImageFilter.blur(
+                    sigmaX: 1.0, sigmaY: 1.0), // Paramètre de flou
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1B1F4A)
+                        .withOpacity(0.2), // Fond semi-transparent
+                  ),
+                  padding: const EdgeInsets.all(8), // Ajuster l'espacement
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          // Ouvre le Drawer via la clé globale
+                          _scaffoldKey.currentState?.openDrawer();
+                        },
+                        icon: const Icon(Icons.menu, color: Colors.white),
+                      ),
+                      Column(
+                        children: [
+                          const Text(
+                            "Opharma",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                        ],
+                      ),
+                      IconButton(
+                        onPressed: () {},
+                        icon: const Icon(Icons.notifications,
+                            color: Colors.white),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          // Footer
+          Positioned(
+            bottom: 20,
+            left: 20,
+            right: 20,
+            child: Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFF1B1F4A),
+                borderRadius: BorderRadius.circular(30),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                    onPressed: () {},
+                    icon: const Icon(Icons.search, color: Colors.white),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      showMaterialModalBottomSheet(
+                        context: context,
+                        builder: (context) => SingleChildScrollView(
+                          controller: ModalScrollController.of(context),
+                          child: Container(
+                            padding: EdgeInsets.all(16.0),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.vertical(
+                                  top: Radius.circular(16)),
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  "Que souhaitez-vous faire ?",
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                SizedBox(height: 16),
+                                ListTile(
+                                  leading: Icon(Icons.crisis_alert_sharp,
+                                      color: Colors.red),
+                                  title: Text("Reserver une ordonance"),
+                                  onTap: () {
+                                    showAlertForm(context);
+                                  },
+                                ),
+                                ListTile(
+                                  leading: Icon(Icons.call, color: Colors.red),
+                                  title: Text("Appeler les urgences"),
+                                  onTap: () {
+                                    // Logique pour appeler les urgences
+                                  },
+                                ),
+                                ListTile(
+                                  leading: Icon(Icons.location_on,
+                                      color: Colors.blue),
+                                  title: Text("Localiser une pharmacie"),
+                                  onTap: () {
+                                    // Logique pour partager la position
+                                  },
+                                ),
+                                ListTile(
+                                  leading:
+                                  Icon(Icons.close, color: Colors.grey),
+                                  title: Text("Fermer"),
+                                  onTap: () {
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: Color.fromRGBO(50, 190, 166, 1), // Couleur vive pour attirer l'attention
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.red.withOpacity(0.6),
+                            blurRadius: 6,
+                            spreadRadius: 2,
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.miscellaneous_services_rounded,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8, left: 8),
+                    child: IconButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  pageAuthentificationPharma()
+                          ), // Remplacez ProfilePage par le nom de votre page de destination
+                        );
+                      },
+                      icon: const Icon(Icons.person, color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          mapController.move(
-              currentPosition ?? const LatLng(-4.4419, 15.2663), 12.0);
-        },
-        child: Icon(
-          Icons.my_location,
-          color: Colors.white,
-        ),
-        backgroundColor: Colors.redAccent,
-      ),
+      drawer: DrawerFb1(),
     );
   }
 }
-
-
-
-
-
-
-
-

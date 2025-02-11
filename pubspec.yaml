@@ -53,6 +53,8 @@ dependencies:
   geolocator: ^13.0.2
   latlong2: ^0.9.1
   permission_handler: ^11.3.1
+  modal_bottom_sheet: ^3.0.0
+  location: ^7.0.1
 
 flutter_native_splash:
   color: '#32BE9C'
