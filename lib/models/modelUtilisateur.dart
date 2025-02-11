@@ -28,7 +28,9 @@ class ModelUtilisateur {
     try {
       var response = await http.post(
         url,
-        headers: {"Content-Type": "application/json"},
+        headers: {"Content-Type": "application/json",
+      "User-Agent": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
+      },
         body: jsonEncode(data),
       );
 

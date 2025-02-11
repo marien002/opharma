@@ -17,13 +17,8 @@ class ModelPharmacie {
   ModelPharmacie(this.nom_pharmacie, this.adresse_physique, this.longitude, this.latutude);
 
   ajouter() async {
-    // Ajout dans la base locale
-    int id_phar = await ModelPharmacie.base.ajoutDonnees(this.nomTable, {
-      "nom_pharmacie": this.nom_pharmacie,
-      "adresse_physique": this.adresse_physique,
-      "longitude": this.longitude,
-      "latitude": this.latutude,
-    });
+    int? idPhar;
+
 
     // Prépare les données pour l'API
     Map<String, dynamic> data = {
@@ -38,20 +33,37 @@ class ModelPharmacie {
     try {
       var response = await http.post(
         url,
-        headers: {"Content-Type": "application/json"},
+        headers: {"Content-Type": "application/json",
+          "User-Agent": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
+        },
         body: jsonEncode(data),
       );
 
       if (response.statusCode == 201) {
         print("Données envoyées avec succès : ${response.body}");
-      } else {
+        // Décoder la réponse
+        Map<String, dynamic> responseData = jsonDecode(response.body);
+
+        // Récupérer les nouvelles valeurs
+        if (responseData["success"] == true && responseData["data"] != null) {
+          Map<String, dynamic> apiData = responseData["data"];
+          idPhar =apiData['id'];
+          // Ajout dans la base locale avec les données de l'API
+           await ModelPharmacie.base.ajoutDonnees(this.nomTable, {
+          "nom_pharmacie": apiData['nom_pharmacie'],
+          "adresse_physique":apiData['adresse_physique'],
+          "longitude": apiData['longitude'],
+          "latitude": apiData['latitude'], // ID renvoyé par l'API
+          });
+        }
+      }  else {
         print("Erreur lors de l'envoi : ${response.statusCode}, ${response.body}");
       }
     } catch (e) {
       print("Erreur réseau : $e");
     }
 
-    return id_phar;
+    return idPhar;
   }
 
   static affId(int id) {

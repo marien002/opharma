@@ -1,5 +1,6 @@
-
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+
 import 'package:opharma/models/modelUtilisateur.dart';
 import 'package:opharma/elper/navigation.dart';
 import '../models/modelClient.dart';
@@ -20,8 +21,26 @@ class controllerAuth{
     var val =await ModelUtilisateur.connecter(login, mot_de_passe,type);
     print(val);
     if(val[0]==true){
-        navigation(context,pageAccueille());
+      Fluttertoast.showToast(
+        msg: "Compte créé avec succès !",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.TOP,
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+
+      navigation(context,pageAccueille());
     }else{
+      Fluttertoast.showToast(
+        msg: "une erreur ce produit lors d'envoi !",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        backgroundColor: Colors.redAccent,
+        textColor: Colors.white,
+        fontSize: 26.0,
+      );
+
       navigation(context,pageAuthentificationPharma());
     }
 

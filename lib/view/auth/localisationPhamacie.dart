@@ -132,10 +132,10 @@ class _LocalisationBanquePageState
         child: Container(
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: Colors.redAccent,
+            color: Color.fromRGBO(50, 190, 166, 1),
             border: Border.all(color: Colors.white, width: 2),
           ),
-          child: const Icon(Icons.medical_services,
+          child: const Icon(Icons.person,
               color: Colors.white, size: 23.0),
         ),
       ));
@@ -193,7 +193,7 @@ class _LocalisationBanquePageState
             mapController: mapController,
             options: MapOptions(
               initialCenter: currentPosition ?? const LatLng(-4.4419, 15.2663),
-              initialZoom: 18.0,
+              initialZoom: 28.0,
               minZoom: 12.0,
               maxZoom: 15.0,
             ),

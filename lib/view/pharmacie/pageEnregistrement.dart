@@ -28,6 +28,7 @@ class pageEnregistrementState extends State<pageEnregistrement> {
   Position? _currentPosition;
   bool etat = false;
   bool pswdVisible = false;
+  bool isLoading = false;
   @override
   Widget build(BuildContext context) {
     var h=MediaQuery.of(context).size;
@@ -84,12 +85,15 @@ class pageEnregistrementState extends State<pageEnregistrement> {
             text: "",
             logo: null
         ).Demarrer(),
-      bottomNavigationBar: Padding(
+
+          bottomNavigationBar: Padding(
         padding: const EdgeInsets.symmetric(vertical: 10),
-        child: _authentification(),
+        child: isLoading ?SizedBox.square(): _authentification(),
       ),
 
-       body:Base(
+       body: Stack( children: [
+
+         Base(
           content: Column(
             children: [
               blockEnregistrement(
@@ -108,6 +112,10 @@ class pageEnregistrementState extends State<pageEnregistrement> {
                   SizedBox(height: 20,),
 
                   ButtonCostom("Créer le compte",colorButton,(){
+                    setState(() {
+                      isLoading = true; // Fin du processus de chargement
+                    });
+
                     if(nomPharma.ValueAf() == null || nomPharma.ValueAf().isEmpty ||
                         adresse.ValueAf() == null || adresse.ValueAf().isEmpty ||
                         login.ValueAf() == null || login.ValueAf().isEmpty ||
@@ -120,6 +128,10 @@ class pageEnregistrementState extends State<pageEnregistrement> {
                         textColor: Colors.white,
                         fontSize: 16.0,
                       );
+                      setState(() {
+                        isLoading = false; // Fin du processus de chargement
+                      });
+
                       return;
                     }
                     // Validation du login (email ou numéro de téléphone)
@@ -135,6 +147,10 @@ class pageEnregistrementState extends State<pageEnregistrement> {
                         textColor: Colors.white,
                         fontSize: 16.0,
                       );
+                      setState(() {
+                        isLoading = false; // Fin du processus de chargement
+                      });
+
                       return;
                     }
                     // Validation du mot de passe
@@ -148,18 +164,15 @@ class pageEnregistrementState extends State<pageEnregistrement> {
                         textColor: Colors.white,
                         fontSize: 16.0,
                       );
+                      setState(() {
+                        isLoading = false; // Fin du processus de chargement
+                      });
+
                       return;
                     }
 
                     else{
-                      Fluttertoast.showToast(
-                        msg: "Compte créé avec succès !",
-                        toastLength: Toast.LENGTH_SHORT,
-                        gravity: ToastGravity.TOP,
-                        backgroundColor: Colors.green,
-                        textColor: Colors.white,
-                        fontSize: 16.0,
-                      );
+
                       print("${_currentPosition?.latitude}   ${_currentPosition?.longitude}");
 
                     Controler_pharmacie(context).Enregistrer(
@@ -169,8 +182,18 @@ class pageEnregistrementState extends State<pageEnregistrement> {
                        mot_de_passe: motDePasse.ValueAf(),
                         latitude: "${_currentPosition?.latitude}",
                         longitude: "${_currentPosition?.longitude}",
-                );
-                      };
+                ).then((_) {
+                    setState(() {
+                      isLoading = false; // Arrêter le spinner après l'enregistrement
+                    });
+                    }).catchError((error) {
+                    setState(() {
+                         isLoading = false; // En cas d'erreur aussi
+                    });
+                    print("errorrrrr d enregistrement : $error");
+                    Fluttertoast.showToast(msg: "une  erreur ce produit lors d'envoi");
+                    });
+                    };
                   },rad: 9).lancer()
 
 
@@ -182,6 +205,12 @@ class pageEnregistrementState extends State<pageEnregistrement> {
           ) ,
           child: []
         ).lancer(h.height-270,h.width-25),
+    if (isLoading)
+    Container(
+    color: Colors.black.withOpacity(0.32), // Fond noir semi-transparent
+    child: Center(
+    child: CircularProgressIndicator(color:Color.fromRGBO(50, 190, 166, 1) ,strokeWidth: 4,),
+    ),)],)
     );
 
   }
@@ -191,6 +220,7 @@ class pageEnregistrementState extends State<pageEnregistrement> {
         children: [
           Text(" Vous avez deja un "),
           TextButton(onPressed: () {
+
             navigation(context,pageAuthentificationPharma());
           },
               child: Text("Compte",
@@ -207,11 +237,13 @@ class pageEnregistrementState extends State<pageEnregistrement> {
           onChanged: (value) {
             setState(() {
               etat = value ?? false;
+              if (etat) {
+                _getCurrentPosition();
+              }
             });
 
-            if (etat) {
-              _getCurrentPosition();
-            }
+
+
           },
           activeColor: const Color.fromRGBO(50, 190, 166, 1),
         ),

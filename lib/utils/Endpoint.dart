@@ -1,6 +1,6 @@
 class Endpoint {
 
-  static const String baseUrl = "http://10.252.252.6:8000/api/";
+  static const String baseUrl = "http://opharma.ct.ws/public/api/";
   static const String baseUrlLogin = baseUrl + "auth/login";
   static const String baseUrlEnregisterpharmacie = baseUrl+"pharmacies";
   static const String baseUrlEnregisterUtilisateur = baseUrl+"utilisateurs";
