@@ -59,8 +59,8 @@ return idVente;
         " and medicament.id_medicament = medicament_vente.id_medicament"+
         " and pharmacie.id_pharmacie = vente.id_pharmacie"+
         " and pharmacie.id_pharmacie=$ses and vente.date='$date' order by vente.heure desc ";
-    var result= await BaseDeDonnee().reccuperationDonnees(requette);
-    return result;
+;
+    return ;
 
 
   }

@@ -7,36 +7,51 @@ class ModelUtilisateur{
 
   static BaseDeDonnee base=new  BaseDeDonnee();
 
-  static creation(id_utilisateurs,type_utilisateur,login,mot_de_passe)async {
-   int id_utilisateur=await base.ajoutDonnees("utilisateur",{
-      "id_utilisateur":id_utilisateurs,
-      "type_utilisateur":type_utilisateur,
-      "login":login,
-      "mot_de_passe":mot_de_passe,
-    });
+  int? id;
+  String nom;
+  String login;
+  String password;
 
+  ModelUtilisateur({this.id, required this.nom, required this.login, required this.password});
+
+  // Convertir en Map (pour SQLite)
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'nom': nom,
+      'login': login,
+      'password': password,
+    };
+  }
+
+  // Convertir depuis Map (depuis SQLite)
+  factory ModelUtilisateur.fromMap(Map<String, dynamic> map) {
+    return ModelUtilisateur(
+      id: map['id'],
+      nom: map['nom'],
+      login: map['login'],
+      password: map['password'],
+    );
+  }
+
+
+
+
+  static creation(ModelUtilisateur utilisateur)async {
+
+    print(utilisateur);
+
+   int id_utilisateur=await base.ajoutDonnees("utilisateur",utilisateur as Map<String, dynamic>);
    return id_utilisateur;
 
   }
 
-
-
-
   static connecter(String login,String mot_de_passe,String type)async {
 
-    print([ login,mot_de_passe, type]);
-    var boll=false;
-    var droit="";
-    String requette="select id_utilisateur from utilisateur where type_utilisateur='$type' and mot_de_passe='$mot_de_passe' and login='$login'";
-    var val=await ModelUtilisateur.base.reccuperationDonnees(requette);
-    print(val[0]["id_utilisateur"]);
 
-    if(val.length!=0){
-      Session.id_connect=val[0]["id_utilisateur"];
-      boll=true;
-    }
-    return [boll,droit];
   }
+
+
 
   static deconnection(){
     Session.id_connect=0;

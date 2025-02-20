@@ -15,7 +15,7 @@ class cPanier{
       Session.increPanier+=1;
     }
     int id=int.parse(element[0]);
-    var quantDetailBd=await BaseDeDonnee().reccuperationDonnees("select quantite_detail"+
+    var quantDetailBd=await BaseDeDonnee().recuperationDonnees("select quantite_detail"+
         " from medicamment_pharmacie  where id_pharmacie=$session and id_medicament=$id");
 
     if(int.parse(element[3][0].toString())> quantDetailBd[0]["quantite_detail"] && element[3][1]==false){

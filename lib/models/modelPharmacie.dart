@@ -31,7 +31,7 @@ class ModelPharmacie  {
 
   static affId(int id) {
     String requette="select * from pharmacie where id_pharmacie=$id";
-    return ModelPharmacie.base.reccuperationDonnees(requette);
+    return ;
   }
 
 
