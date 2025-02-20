@@ -64,7 +64,6 @@ class _SignalementPageState extends State<SignalementPage> {
       headers: {"Content-Type": "application/json",
         "User-Agent": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
       },
-
     );
 
     if (response.statusCode == 200) {
@@ -145,7 +144,6 @@ class _SignalementPageState extends State<SignalementPage> {
   }
 
   void _addMarkers(List pharmacies) {
-
     Set<Marker> newMarkers = pharmacies.map((pharmacy) {
       return Marker(
         width: 80,
