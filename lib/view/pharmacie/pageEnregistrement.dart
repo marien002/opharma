@@ -48,11 +48,11 @@ class pageEnregistrementState extends State<pageEnregistrement> {
         value: "login",
         couleur:colorInput
     );
-    InputCostom motDePasse=InputCostom(Name:"motDePasse",lar:longInp,long:largInp,
+    InputCostom motDePasse=InputCostom(Name:"mot de passe",lar:longInp,long:largInp,
         value: "motDepasse",
         couleur:colorInput
     );
-    InputCostom motDePasseConfirmation=InputCostom(Name:"motDePasseConfirmation",lar:longInp,long:largInp,
+    InputCostom motDePasseConfirmation=InputCostom(Name:"mot de PasseConfirmation",lar:longInp,long:largInp,
         value: "confirmer votre mot de passe",
         couleur:colorInput
     );
@@ -90,8 +90,6 @@ class pageEnregistrementState extends State<pageEnregistrement> {
                 );
                   },rad: 9).lancer()
 
-
-
                 ],
                 tailleT: 45
               )
@@ -104,9 +102,6 @@ class pageEnregistrementState extends State<pageEnregistrement> {
   }
 
 }
-
-
-
 
 Widget  blockEnregistrement(String title,List<Widget> element,{tailleT=60}){
   Widget titre=Container(
@@ -128,6 +123,7 @@ Widget  blockEnregistrement(String title,List<Widget> element,{tailleT=60}){
     child:Padding(
       padding: EdgeInsets.only(left: 10,right: 10,bottom: 10),
       child: Column(
+
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: element,

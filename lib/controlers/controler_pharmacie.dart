@@ -17,14 +17,15 @@ class Controler_pharmacie{
 
   Enregistrer( {nom_pharmacie,adresse_physique,mot_de_passe,login,latitude,longitude})async{
 
-    //String nom;
-    //String login;
-    //String password;
-
-    //var pharmacie= ModelUtilisateur(nom_pharmacie,adresse_physique,latitude,longitude);
-    var val = await ModelUtilisateur.creation( ModelUtilisateur(nom: "omega",login: "0000",password:"0000"));
-
+    int id_utilisateur = await ModelUtilisateur
+        .creation( ModelUtilisateur
+      (nom: "omega",login: "0000",password:"0000"));
+    ModelPharmacie.creation( ModelPharmacie(adresse_pharmacie:"gggg",longitude: "33",latutude: "22",id_utilisateur: id_utilisateur));
     navigation(context,pageAuthentificationPharma());
+
+  }
+
+  supprimer(){
 
   }
 

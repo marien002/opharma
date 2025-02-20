@@ -5,33 +5,34 @@ import 'baseDeDonnee/BaseDeDonnee.dart';
 
 
 class ModelPharmacie  {
-  late   int ? id_pharmacie;
-  String nom_pharmacie;
+  late   int ? id;
 
-  String adresse_physique;
 
+  String adresse_pharmacie;
   String longitude;
   String latutude;
+  int id_utilisateur;
 
   String nomTable="pharmacie";
   static BaseDeDonnee base=new  BaseDeDonnee();
 
-  ModelPharmacie(this.nom_pharmacie,this.adresse_physique,this.longitude,this.latutude);
+  ModelPharmacie({this.id,required this.adresse_pharmacie,required this.longitude, required this.latutude,required this.id_utilisateur});
 
-  ajouter() async{
-    int id_phar=await ModelPharmacie.base.ajoutDonnees(this.nomTable,{"nom_pharmacie":this.nom_pharmacie,
-      "adresse_physique":this.adresse_physique,
-      "longitude":this.latutude,
-      "latitude":this.longitude,
-
-    });
-    return  id_phar;
-
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'adresse_pharmacie': adresse_pharmacie,
+      'longitude': longitude,
+      'latitude': latutude,
+      'id_utilisateur': id_utilisateur,
+    };
   }
 
-  static affId(int id) {
-    String requette="select * from pharmacie where id_pharmacie=$id";
-    return ;
+
+  static creation(ModelPharmacie pharmacie)async {
+    int id_utilisateur=await base.ajoutDonnees("pharmacie",pharmacie.toMap());
+    return id_utilisateur;
+
   }
 
 
