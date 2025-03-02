@@ -1,4 +1,7 @@
 
+import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+
 import '../elper/navigation.dart';
 import '../models/modelPharmacie.dart';
 import '../models/ModelUtilisateur.dart';
@@ -16,15 +19,13 @@ class Controler_pharmacie{
 
   Enregistrer( {nom_pharmacie,adresse_physique,mot_de_passe,login,latitude,longitude})async{
 
-    int id_utilisateur = await ModelUtilisateur
-        .creation( ModelUtilisateur
-      (nom: "omega",login: "0000",password:"0000"));
-    ModelPharmacie.creation( ModelPharmacie(adresse_pharmacie:"gggg",longitude: "33",latutude: "22",id_utilisateur: id_utilisateur));
-    var id_pharmacie=  ModelPharmacie(nom_pharmacie,adresse_physique,latitude,longitude).ajouter();
+    int id_utilisateur = await ModelUtilisateur(nom: nom_pharmacie,login :login, password: mot_de_passe).creation();
 
-    var val = await ModelUtilisateur.creation(await id_pharmacie,"pharmacie",login,mot_de_passe);
-    print(id_pharmacie );
-    if(val is int){Fluttertoast.showToast(
+
+   ModelPharmacie(nom_pharmacie:"gggg",longitude: "33",latutude: "22",id_utilisateur: id_utilisateur).creation();
+
+    print(id_utilisateur );
+    if(id_utilisateur is int){Fluttertoast.showToast(
       msg: "Compte créé avec succès !",
       toastLength: Toast.LENGTH_SHORT,
       gravity: ToastGravity.TOP,

@@ -5,86 +5,66 @@ import 'baseDeDonnee/BaseDeDonnee.dart';
 import 'package:opharma/utils/Endpoint.dart';
 
 class ModelUtilisateur {
-  static BaseDeDonnee base = BaseDeDonnee();
 
-  static BaseDeDonnee base=new  BaseDeDonnee();
+
+  static BaseDeDonnee base = new BaseDeDonnee();
 
   int? id;
   String nom;
   String login;
   String password;
 
-  ModelUtilisateur({this.id, required this.nom, required this.login, required this.password});
-  static Future<int> creation(id_utilisateurs, type_utilisateur, login, mot_de_passe) async {
-    int id_utilisateur = await base.ajoutDonnees("utilisateur", {
-      "id_utilisateur": id_utilisateurs,
-      "type_utilisateur": type_utilisateur,
-      "login": login,
-      "mot_de_passe": mot_de_passe, // Correction de la faute de frappe
-    });
+  // Convertir en Map (pour SQLite)
 
-    // Préparation des données pour l'API
-    Map<String, dynamic> data = {
-      "id_utilisateur": id_utilisateurs,
-      "type_utilisateur": type_utilisateur,
+
+  ModelUtilisateur(
+      {this.id, required this.nom, required this.login, required this.password});
+  Map<String, dynamic> toMap() {
+    return {
+      "nom": nom,
       "login": login,
-      "mot_de_passe": mot_de_passe,
+      'password': password,
     };
+  }
 
-    // Envoi des données à l'API
-    Uri url = Uri.parse(Endpoint.baseUrlEnregisterUtilisateur); // Assure-toi d'ajouter cette URL dans Endpoint.dart
+
+  static connecter(String login, String mot_de_passe, String type) async {
+
+  }
+  creation() async {
+    Map<String, dynamic> data = ModelUtilisateur(nom: nom, login: login, password: password).toMap();
+    Uri url = Uri.parse(Endpoint.baseUrlEnregisterpharmacie);
     try {
       var response = await http.post(
         url,
         headers: {"Content-Type": "application/json",
-      "User-Agent": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
-      },
+          "User-Agent": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
+        },
         body: jsonEncode(data),
       );
 
       if (response.statusCode == 201) {
-        print("Utilisateur enregistré avec succès : ${response.body}");
-      } else {
-        print("Erreur lors de l'enregistrement : ${response.statusCode}, ${response.body}");
+        print("Données envoyées avec succès : ${response.body}");
+        // Décoder la réponse
+        Map<String, dynamic> responseData = jsonDecode(response.body);
+
+        // Récupérer les nouvelles valeurs
+        if (responseData["success"] == true && responseData["data"] != null) {
+          Map<String, dynamic> apiData = responseData["data"];
+
+          // Ajout dans la base locale avec les données de l'API
+          int id_utilisateur = await base.ajoutDonnees("pharmacie",data);
+        }
+      }  else {
+        print("Erreur lors de l'envoi : ${response.statusCode}, ${response.body}");
       }
     } catch (e) {
       print("Erreur réseau : $e");
     }
 
-  // Convertir en Map (pour SQLite)
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'nom_utilisateur': nom,
-      'login': login,
-      'password': password,
-    };
+    //int id_utilisateur = await base.ajoutDonnees(  "utilisateur", utilisateur.toMap());
+    //return id_utilisateur;
   }
-
-  // Convertir depuis Map (depuis SQLite)
-  factory ModelUtilisateur.fromMap(Map<String, dynamic> map) {
-    return ModelUtilisateur(
-      id: map['id'],
-      nom: map['nom_utilisateur'],
-      login: map['login'],
-      password: map['password'],
-    );
-  }
-
-
-  static creation(ModelUtilisateur utilisateur)async {
-
-     int id_utilisateur=await base.ajoutDonnees("utilisateur",utilisateur.toMap());
-     return id_utilisateur;
-
-    return id_utilisateur;
-  }
-
-  static connecter(String login,String mot_de_passe,String type)async {
-
-  }
-
-
 
   static void deconnection() {
     Session.id_connect = 0;

@@ -7,10 +7,10 @@ import 'baseDeDonnee/BaseDeDonnee.dart';
 
 
 class ModelPharmacie  {
-  late   int ? id_pharmacie;
+  late   int ? id;
   String nom_pharmacie;
 
-  String adresse_physique;
+ late  String adresse_pharmacie;
 
   String longitude;
   String latutude;
@@ -19,29 +19,22 @@ class ModelPharmacie  {
   String nomTable="pharmacie";
   static BaseDeDonnee base=new  BaseDeDonnee();
 
-  ModelPharmacie({this.id,required this.adresse_pharmacie,required this.longitude, required this.latutude,required this.id_utilisateur});
+  ModelPharmacie({this.id,required this.nom_pharmacie,required this.longitude, required this.latutude,required this.id_utilisateur});
 
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
-      'adresse_pharmacie': adresse_pharmacie,
+      "nom_pharmacie": nom_pharmacie,
       'longitude': longitude,
       'latitude': latutude,
       'id_utilisateur': id_utilisateur,
     };
   }
-  ajouter() async {
-    int? idPhar;
 
 
-    // Prépare les données pour l'API
-    Map<String, dynamic> data = {
-      "nom_pharmacie": this.nom_pharmacie,
-      "adresse_physique": this.adresse_physique,
-      "longitude": double.parse(this.longitude.toString()),
-      "latitude": double.parse(this.latutude.toString()),
-    };
 
+   creation()async {
+    Map<String, dynamic> data = ModelPharmacie(nom_pharmacie: nom_pharmacie,
+        longitude: longitude, latutude: latutude, id_utilisateur: this.id_utilisateur).toMap();
     // Envoie les données à l'API
     Uri url = Uri.parse(Endpoint.baseUrlEnregisterpharmacie);
     try {
@@ -61,14 +54,9 @@ class ModelPharmacie  {
         // Récupérer les nouvelles valeurs
         if (responseData["success"] == true && responseData["data"] != null) {
           Map<String, dynamic> apiData = responseData["data"];
-          idPhar =apiData['id'];
+
           // Ajout dans la base locale avec les données de l'API
-           await ModelPharmacie.base.ajoutDonnees(this.nomTable, {
-          "nom_pharmacie": apiData['nom_pharmacie'],
-          "adresse_physique":apiData['adresse_physique'],
-          "longitude": apiData['longitude'],
-          "latitude": apiData['latitude'], // ID renvoyé par l'API
-          });
+          int id_utilisateur = await base.ajoutDonnees("pharmacie",data);
         }
       }  else {
         print("Erreur lors de l'envoi : ${response.statusCode}, ${response.body}");
@@ -77,16 +65,16 @@ class ModelPharmacie  {
       print("Erreur réseau : $e");
     }
 
-  static creation(ModelPharmacie pharmacie)async {
-    int id_utilisateur=await base.ajoutDonnees("pharmacie",pharmacie.toMap());
+   // int id_utilisateur=await base.ajoutDonnees("pharmacie",pharmacie.toMap());
     return id_utilisateur;
-    return idPhar;
+
   }
 
-  static affId(int id) {
+  affId(int id) {
     String requette="select * from pharmacie where id_pharmacie=$id";
-    return ModelPharmacie.base.reccuperationDonnees(requette);
+    return ModelPharmacie.base.recuperationDonnees(requette);
   }
 }
 
-}
+
+
