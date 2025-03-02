@@ -47,10 +47,12 @@ class Base {
             margin: EdgeInsets.only(top:11),
               height: 660,
 
-              child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.max,
-                  children: this.child)
+              child: SingleChildScrollView (
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.max,
+                    children: this.child),
+              )
           ))
     ]);
   }

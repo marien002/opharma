@@ -30,6 +30,7 @@ class pageAuthentificationState extends State<pageAuthentificationPharma> {
  late  List<Widget> action;
  var attente=false;
  Color colorConnect=Colors.white24;
+ bool isLoading = false;
 
 
   @override
@@ -56,8 +57,9 @@ class pageAuthentificationState extends State<pageAuthentificationPharma> {
     var colorInput=Color.fromRGBO(230, 230, 230,1);
 
     InputCostom login= InputCostom(Name:"login",lar:longInp,long:largInp,couleurBorder: colorConnect,
-        value: "Entrez le login ",
-        couleur:colorInput
+        value: "Téléphone ou Email",
+        couleur:colorInput,
+        icon: Icon(Icons.login)
     );
 
     InputCostom passWord=InputCostom(Name:"passWord",lar:longInp,long:largInp,couleurBorder: colorConnect,
@@ -74,31 +76,81 @@ class pageAuthentificationState extends State<pageAuthentificationPharma> {
             text: "",
             logo: null
         ).Demarrer(),
-        body:Base(
-            content:blockAuth(
-              "Authentifiez-vous",
-                blockInt(
-                  login.lancer(),
-                   passWord.lancer(),
-                  [
-                    Elemt("Création du compte",(){
-                      AlertDialogue(
-                          Title: "Message",
-                          contenue: "Voulez-vous créer un compte ?",
-                          action:action,fonctionExte: (){
-                      }
-                      ).lancer(context);
-                    }),
-                    Elemt("Mot de passe oublier ?",(){})
-                  ]
-                ),
+        body:Stack(
+          children: [Base(
+              content:blockAuth(
+                "Authentifiez-vous",
+                  blockInt(
+                    login.lancer(),
+                     passWord.lancer(),
+                    [
+                      Elemt("Création du compte",(){
+                        AlertDialogue(
+                            Title: "Message",
+                            contenue: "Voulez-vous créer un compte ?",
+                            action:action,fonctionExte: (){
+                        }
+                        ).lancer(context);
+                      }),
+                      Elemt("Mot de passe oublier ?",(){})
+                    ]
+                  ),
 
-                ButtonCostom("Connexion",colorButton,()async{
-                 await controllerAuth(context).connecter(login.ValueAf(),passWord.ValueAf());
-                }).lancer(),
-            )  ,
-            child: []
-        ).lancer(390,h.width-25)
+                  ButtonCostom("Connexion",colorButton,()async{
+                    setState(() {
+                      isLoading = true; // Fin du processus de chargement
+                    });
+                    if(
+                        login.ValueAf() == null || login.ValueAf().isEmpty ||
+                            passWord.ValueAf() == null || passWord.ValueAf().isEmpty) {
+                      Fluttertoast.showToast(
+                        msg: "Veuillez remplir tous les champs obligatoires.",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.TOP,
+                        backgroundColor: Colors.redAccent,
+                        textColor: Colors.white,
+                        fontSize: 16.0,
+                      );
+                      setState(() {
+                        isLoading = false; // Fin du processus de chargement
+                      });
+
+                      return;
+                    }
+                    final emailRegex = RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
+                    final phoneRegex = RegExp(r"^\+?[0-9]{10,15}$"); // Accepte un numéro international ou national
+
+                    if(!emailRegex.hasMatch(login.ValueAf()) && !phoneRegex.hasMatch(login.ValueAf())) {
+                      Fluttertoast.showToast(
+                        msg: "Veuillez entrer un email ou un numéro de téléphone valide.",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.TOP,
+                        backgroundColor: Colors.orangeAccent,
+                        textColor: Colors.white,
+                        fontSize: 16.0,
+                      );
+                      setState(() {
+                        isLoading = false; // Fin du processus de chargement
+                      });
+
+                      return;
+                    }
+                   else{
+                      await controllerAuth(context).connecter(login.ValueAf(),passWord.ValueAf());
+                      setState(() {
+                        isLoading = false; // Fin du processus de chargement
+                      });
+                    }
+                  }).lancer(),
+              )  ,
+              child: []
+          ).lancer(390,h.width-25), if (isLoading)
+            Container(
+              color: Colors.black.withOpacity(0.32), // Fond noir semi-transparent
+              child: Center(
+                child: CircularProgressIndicator(color:Color.fromRGBO(50, 190, 166, 1) ,strokeWidth: 4,),
+              ),)]
+        )
     );
   }
 
