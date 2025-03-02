@@ -30,14 +30,14 @@ class StockProduit extends StatefulWidget {
   var tampoProduit;
 
   StockProduit(this.tampoProduit);
-  State<StockProduit> createState() => StockProduitState(this.tampoProduit);
+  State<StockProduit> createState() => StockProduitState();
 }
 
 class StockProduitState extends State<StockProduit> {
   int qte_paquet=0;
   int posCombo=0;
- int quantite=0;
- String dateExp="00-00-0000";
+  int quantite=0;
+  String dateExp="00-00-0000";
   List<ModelMedicament> tampoProduit=[];
   var indexParcour=0;
   var d=DateTime.now();
@@ -46,8 +46,7 @@ class StockProduitState extends State<StockProduit> {
   late double longQte;
   bool switchValue = false;
 
-  StockProduitState(this.tampoProduit);
-
+  StockProduitState();
 
   @override
   Widget build(BuildContext context) {
@@ -70,6 +69,7 @@ class StockProduitState extends State<StockProduit> {
         long: longQte,
         value: "Quant",elevation: 3
     );
+
     Combobox medoc= Combobox(
         long:longElement+10 ,large: 40,
         f:(a,pos){

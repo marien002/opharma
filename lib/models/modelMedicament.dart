@@ -45,7 +45,7 @@ class ModelMedicament {
             " on pharmacie.id_pharmacie=medicamment_pharmacie.id_pharmacie "+
         " where nom_medicament='$nom' and "+
         " unite='$unite' and dose='$dose' and forme='$forme' and pharmacie.id_pharmacie=$sess ";
-  var resultTest = await base.reccuperationDonnees(redondance);
+  var resultTest = await base.recuperationDonnees(redondance);
 
     if(resultTest.length==0){
 
@@ -53,7 +53,7 @@ class ModelMedicament {
           " where nom_medicament='$nom' and "+
           " unite='$unite' and dose='$dose' and forme='$forme'";
 
-      var resultTest2=await base.reccuperationDonnees(requetteTest2);
+      var resultTest2=await base.recuperationDonnees(requetteTest2);
       if(resultTest2.length==0){
         val= await base.ajoutDonnees(this.nomTable,{"nom_medicament":this.nom,
           "unite":this.unite,"dose":this.dose,
@@ -91,8 +91,8 @@ class ModelMedicament {
         " medicamment_pharmacie.id_medicament=medicament.id_medicament inner join pharmacie "+
         " on pharmacie.id_pharmacie=medicamment_pharmacie.id_pharmacie "+
         " where date_expi_medicament ='28-04 2024' and medicamment_pharmacie.id_pharmacie='$sess' ";
-    var res=await base.reccuperationDonnees(requette);
-    return (res.isEmpty)?false:true;
+
+    return ;
 
   }
 
@@ -128,13 +128,14 @@ class ModelMedicament {
 
 
   static afficher()async {
-    String requette="select * from medicament inner join  medicamment_pharmacie on "+
-        " medicamment_pharmacie.id_medicament=medicament.id_medicament inner join pharmacie "+
-        " on pharmacie.id_pharmacie=medicamment_pharmacie.id_pharmacie "+
-        " where medicamment_pharmacie.id_pharmacie='$sess'";
-    var res=await base.reccuperationDonnees(requette);
 
-    return  preparationPourCombo(res);
+    String requette="select * from medicament inner join  medicament_pharmacie on "+
+        " medicament_pharmacie.id_medicament=medicament.id_medicament inner join pharmacie "+
+        " on pharmacie.id_pharmacie=medicament_pharmacie.id_pharmacie "+
+        " where medicament_pharmacie.id_pharmacie='$sess'";
+
+
+    return  ;
   }
 
 
@@ -151,8 +152,8 @@ class ModelMedicament {
        " medicamment_pharmacie.id_medicament=medicament.id_medicament inner join pharmacie "+
        " on pharmacie.id_pharmacie=medicamment_pharmacie.id_pharmacie "+
        " where nom_medicament LIKE '$medoc%' and medicamment_pharmacie.id_pharmacie='$sess' ";
-   var res=await base.reccuperationDonnees(requette);
-   return  preparationPourCombo(res);
+
+   return  ;
 }
 
    static filtrage(String commune,String medoc)async{
@@ -160,8 +161,8 @@ class ModelMedicament {
          " medicamment_pharmacie.id_medicament=medicament.id_medicament inner join pharmacie "+
          " on pharmacie.id_pharmacie=medicamment_pharmacie.id_pharmacie "+
          " where nom_medicament LIKE '$medoc%' and commune_pharmacie LIKE '$commune%' ";
-     var res=await base.reccuperationDonnees(requette);
-     return  res;
+;
+     return  ;
 
    }
 

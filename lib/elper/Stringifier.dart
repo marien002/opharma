@@ -3,7 +3,9 @@
 import '../models/modelMedicament.dart';
 
 StringifierCombo(List<ModelMedicament> tab){
-  print(tab);
+
+
+
   List<String> result=[];
 
   for(int i=0; i<tab.length; i++){

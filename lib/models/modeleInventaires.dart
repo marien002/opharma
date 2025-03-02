@@ -20,8 +20,8 @@ class ModeleInventaires{
     " and pharmacie.id_pharmacie = vente.id_pharmacie"+
     " and pharmacie.id_pharmacie=$ses and vente.date='$dates'"+
     " group by medicament.nom_medicament ";
-    var result= await BaseDeDonnee().reccuperationDonnees(requette);
-    return result;
+
+    return ;
 
   }
 
@@ -36,8 +36,8 @@ class ModeleInventaires{
         " and pharmacie.id_pharmacie = vente.id_pharmacie"+
         " and pharmacie.id_pharmacie=$ses and vente.date LIKE '%$dates' "+
         " group by medicament.nom_medicament ";
-    var result= await BaseDeDonnee().reccuperationDonnees(requette);
-    return result;
+
+    return ;
 
 
   }
@@ -53,8 +53,8 @@ class ModeleInventaires{
         " and pharmacie.id_pharmacie = vente.id_pharmacie"+
         " and pharmacie.id_pharmacie=$ses and vente.date LIKE '%$dates' "+
         " group by medicament.nom_medicament ";
-    var result= await BaseDeDonnee().reccuperationDonnees(requette);
-    return result;
+
+    return ;
 
   }
 }
